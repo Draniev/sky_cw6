@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
 import os
 from pathlib import Path
 
@@ -18,6 +17,16 @@ from dotenv import load_dotenv
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# DB_NAME = os.getenv('DB_NAME')
+# DB_HOST = os.getenv('DB_HOST')
+# DB_USER = os.getenv('DB_USER')
+# DB_PORT = os.getenv('DB_PORT')
+# DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_NAME = os.environ.get('DB_NAME')
+DB_HOST = os.environ.get('DB_HOST')
+DB_USER = os.environ.get('DB_USER')
+DB_PORT = os.environ.get('DB_PORT')
+DB_PASSWORD = os.environ.get('DB_PASSWORD')
 
 
 # Quick-start development settings - unsuitable for production
@@ -45,9 +54,10 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     'rest_framework_simplejwt',
-    'drf_spectacular',
+    "djoser",
     "users",
     "ads",
+    'drf_spectacular',
     "redoc",
 ]
 
@@ -87,9 +97,23 @@ WSGI_APPLICATION = "skymarket.wsgi.application"
 
 # TODO здесь мы настраиваем аутентификацию и пагинацию
 REST_FRAMEWORK = {
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 # TODO здесь мы настраиваем Djoser
 DJOSER = {
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.UserRegistrationSerializer'
+        # 'user_create': 'djoser.serializers.UserCreateSerializer',
+    },
+    'LOGIN_FIELD': 'email'
 }
 
 # Database
@@ -99,11 +123,11 @@ DJOSER = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'skymarket',
+        'NAME': DB_NAME,
         'USER': 'skymarket',
         'PASSWORD': 'skymarket',
         'HOST': 'localhost',
-        'PORT': '5432',
+        'PORT': DB_PORT,
     }
 }
 
@@ -167,20 +191,7 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.environ.get("EMAIL_PORT")
 
-
-REST_FRAMEWORK = {
-    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    # 'PAGE_SIZE': 10,
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-}
-
-AUTH_USER_MODEL = 'users.UserModel'
+AUTH_USER_MODEL = 'users.User'
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Skymarket API',
